@@ -1,0 +1,19 @@
+################################################
+# Syntax Coloring Map For PPD42NS-sensor-library
+################################################
+
+###########################################
+# Datatypes (KEYWORD1)
+###########################################
+
+PPD42NS	KEYWORD1
+
+###########################################
+# Methods and Functions (KEYWORD2)
+###########################################
+
+begin KEYWORD2
+end KEYWORD2
+concentrationPM10 KEYWORD2
+concentrationPM25 KEYWORD2
+
