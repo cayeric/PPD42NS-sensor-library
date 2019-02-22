@@ -72,12 +72,14 @@ float PPD42NS::concentrationPM25()
 */
 float PPD42NS::countPM10()
 {
-	return 1.1*pow(samplePM10,3)-3.8*pow(samplePM10,2)+520*samplePM10+0.62;;
+	float ratio = ratioPM10();
+	return 1.1*pow(ratio,3)-3.8*pow(ratio,2)+520*ratio+0.62;;
 }
 
 float PPD42NS::countPM25()
 {
-	return 1.1*pow(samplePM25,3)-3.8*pow(samplePM25,2)+520*samplePM25+0.62;;
+	float ratio = ratioPM25();
+	return 1.1*pow(ratio,3)-3.8*pow(ratio,2)+520*ratio+0.62;;
 }
 
 float PPD42NS::ratioPM10(void)
