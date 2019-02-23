@@ -10,9 +10,9 @@
 volatile uint32_t LPO1, LPO2;
 // contains LOW-PULSE-BEGIN timestamp in milliseconds
 volatile uint32_t LPB1, LPB2;
-
+// pin configuration
 volatile uint8_t _pin_P1, _pin_P2;
-volatile float samplePM10, samplePM25;
+volatile float sampleP1, sampleP2;
 
 PPD42NS::PPD42NS()
 {
@@ -25,8 +25,8 @@ void PPD42NS::begin(uint8_t pin_P1, uint8_t pin_P2)
 
 void processSampleData()
 {
-	samplePM10=LPO1;
-	samplePM25=LPO2;
+	sampleP1=LPO1;
+	sampleP2=LPO2;
 	LPO1=0;
 	LPO2=0;
 }
@@ -59,37 +59,28 @@ void highP2()
 	attachInterrupt(digitalPinToInterrupt(_pin_P2), lowP2, FALLING);
 }
 
-/*
+// concentration returned as μg/m^3
 float PPD42NS::concentrationPM10()
 {
-	return 1.1*pow(ratioPM10,3)-3.8*pow(ratioPM10,2)+520*ratioPM10+0.62;;
+	return countPM10() * CONCENTRATION_CONSTANT_P10;
 }
 
 float PPD42NS::concentrationPM25()
 {
-	return 1.1*pow(ratioPM25,3)-3.8*pow(ratioPM25,2)+520*ratioPM25+0.62;;
-}
-*/
-float PPD42NS::countPM10()
-{
-	float ratio = ratioPM10();
-	return 1.1*pow(ratio,3)-3.8*pow(ratio,2)+520*ratio+0.62;;
+	return countPM25() * CONCENTRATION_CONSTANT_P25;
 }
 
+// the result from count function returns pcs/0.01 ft^3 (=pcs/cft^3)
 float PPD42NS::countPM25()
 {
-	float ratio = ratioPM25();
-	return 1.1*pow(ratio,3)-3.8*pow(ratio,2)+520*ratio+0.62;;
+	float ratio = sampleP1 / (_interval * 10.0);
+	return ((1.1*pow(ratio,3))-(3.8*pow(ratio,2))+(520*ratio)+0.62) - countPM10();
 }
 
-float PPD42NS::ratioPM10(void)
+float PPD42NS::countPM10()
 {
-	return samplePM10 / (_interval * 10.0);
-}
-
-float PPD42NS::ratioPM25(void)
-{
-	return samplePM25 / (_interval * 10.0);
+	float ratio = sampleP2 / (_interval * 10.0);
+	return (1.1*pow(ratio,3))-(3.8*pow(ratio,2))+(520*ratio)+0.62;
 }
 
 void PPD42NS::begin(uint8_t pin_P1, uint8_t pin_P2, uint8_t interval) 
@@ -109,8 +100,8 @@ void PPD42NS::begin(uint8_t pin_P1, uint8_t pin_P2, uint8_t interval)
 	DEBUG_PRINT("Set measure window interval ticker: "); DEBUG_PRINTLN(_interval, DEC);
 	
 	// initial concentration is zero
-	samplePM10=0;
-	samplePM25=0;
+	sampleP1=0;
+	sampleP2=0;
 	
 	// set measuring interval
 	LPO1=0;
@@ -120,9 +111,6 @@ void PPD42NS::begin(uint8_t pin_P1, uint8_t pin_P2, uint8_t interval)
 	// set up interrupts
 	attachInterrupt(digitalPinToInterrupt(_pin_P1), lowP1, FALLING);
 	attachInterrupt(digitalPinToInterrupt(_pin_P2), lowP2, FALLING);
-	
-//	attachInterrupt(digitalPinToInterrupt(_pin_P1), highP1, RISING);
-//	attachInterrupt(digitalPinToInterrupt(_pin_P2), highP2, RISING);
 }
 
 void PPD42NS::end()
