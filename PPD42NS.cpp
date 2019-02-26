@@ -74,7 +74,9 @@ float PPD42NS::concentrationPM25()
 float PPD42NS::countPM25()
 {
 	float ratio = sampleP1 / (_interval * 10.0);
-	return ((1.1*pow(ratio,3))-(3.8*pow(ratio,2))+(520*ratio)+0.62) - countPM10();
+	float count = ((1.1*pow(ratio,3))-(3.8*pow(ratio,2))+(520*ratio)+0.62) - countPM10();
+	// return zero if there is an error when subtracting PM10 particle count
+	return (count<0) ? 0 : count;
 }
 
 float PPD42NS::countPM10()
